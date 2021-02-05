@@ -3,6 +3,7 @@ import entity.Pet;
 import entity.PetType;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ClinicManager {
@@ -30,12 +31,20 @@ public class ClinicManager {
         return pet1 == null ? null : pet1.getOwner().getName();
     }
 
-    public String getPetName(String clientName) {
+    public List<String> getListPetName(String clientName) {
         Owner owner1 = owners.stream()
                 .filter(owner -> clientName.equals(owner.getName()))
                 .findAny()
                 .orElse(null);
-        return owner1 == null ? null : owner1.getPet().getName();
+        if(owner1 != null){
+            List<String> exitList = new ArrayList<>();
+            for(Pet pet:owner1.getPets()){
+                exitList.add(pet.getName());
+            }
+            return exitList;
+        }else{
+            return null;
+        }
     }
 
     public void changeClientName(String oldName, String newName) {
@@ -55,7 +64,9 @@ public class ClinicManager {
     public void deleteClient(String nameClient) {
         for (int i = 0; i < owners.size(); i++) {
             if (owners.get(i).getName().equals(nameClient)) {
-                pets.remove(owners.get(i).getPet());
+                for(Pet pet:owners.get(i).getPets()){
+                    pets.remove(pet);
+                }
                 owners.remove(i);
                 break;
             }
@@ -68,5 +79,21 @@ public class ClinicManager {
 
     public ArrayList<Pet> getPets() {
         return pets;
+    }
+
+    public void addPetToClient(String name, String petName, PetType petType) {
+        Pet pet = new Pet(petName,petType);
+        pets.add(pet);
+        Owner owner = owners.stream()
+                .filter(o -> o.getName().equals(name))
+                .findAny()
+                .orElse(null);
+        if(owner == null) {
+            System.out.println("Ошибка нет такого владельца");
+            //TODO: добавить обработчик ошибок
+            return;
+        }
+        pet.setOwner(owner);
+        owner.addPet(pet);
     }
 }

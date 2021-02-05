@@ -1,11 +1,12 @@
 package entity;
 
-import java.util.ArrayList;
-
 public class Pet {
     private String name;
     private PetType type;
     private Owner owner;
+
+    public Pet() {
+    }
 
     public Pet(String name, PetType type, Owner owner) {
         this.name = name;
@@ -14,7 +15,7 @@ public class Pet {
     }
 
     public Pet(String name, PetType type) {
-      this(name, type, null);
+        this(name, type, null);
     }
 
     public Owner getOwner() {
@@ -31,5 +32,9 @@ public class Pet {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setType(PetType type) {
+        this.type = type;
     }
 }

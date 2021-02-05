@@ -1,20 +1,31 @@
 package entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Owner {
     private String name;
-    private Pet pet;
+    private List<Pet> pets;
+
+    public Owner() {
+        pets = new ArrayList<>();
+    }
 
     public Owner(String name, Pet pet) {
+        this();
         this.name = name;
-        this.pet = pet;
+        pets.add(pet);
+    }
+    public void addPet(Pet pet) {
+        pets.add(pet);
     }
 
     public String getName() {
         return name;
     }
 
-    public Pet getPet() {
-        return pet;
+    public List<Pet> getPets() {
+        return pets;
     }
 
     public void setName(String name) {
