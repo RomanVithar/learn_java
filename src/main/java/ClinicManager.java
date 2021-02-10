@@ -1,6 +1,7 @@
 import entity.Owner;
 import entity.Pet;
 import entity.PetType;
+import jdbc.JDBCConnector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,10 +10,12 @@ import java.util.Objects;
 public class ClinicManager {
     private final ArrayList<Owner> owners;
     private final ArrayList<Pet> pets;
+    private JDBCConnector jdbcConnector;
 
-    public ClinicManager() {
+    public ClinicManager() throws ClassNotFoundException {
         owners = new ArrayList<>();
         pets = new ArrayList<>();
+        jdbcConnector = new JDBCConnector();
     }
 
     public void addClient(String name, String petName, PetType petType) {

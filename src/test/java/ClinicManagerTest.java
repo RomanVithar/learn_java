@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ClinicManagerTest extends TestCase {
-    public void testAddClient() {
+    public void testAddClient() throws ClassNotFoundException {
         ClinicManager cm = new ClinicManager();
         cm.addClient("x1","y1", PetType.CAT);
         cm.addClient("x2","y2", PetType.DOG);
@@ -22,7 +22,7 @@ public class ClinicManagerTest extends TestCase {
         Assert.assertEquals("[y1, y2, y3, y4, y4.2]", namesPet.toString());
     }
 
-    public void testGetNameClient() {
+    public void testGetNameClient() throws ClassNotFoundException {
         ClinicManager cm = new ClinicManager();
         cm.addClient("x1","y1", PetType.CAT);
         cm.addClient("x2","y2", PetType.DOG);
@@ -34,7 +34,7 @@ public class ClinicManagerTest extends TestCase {
         Assert.assertEquals("x4", cm.getNameClient("y4.2"));
     }
 
-    public void testGetPetName() {
+    public void testGetPetName() throws ClassNotFoundException {
         ClinicManager cm = new ClinicManager();
         cm.addClient("x1","y1", PetType.CAT);
         cm.addClient("x2","y2", PetType.DOG);
@@ -46,7 +46,7 @@ public class ClinicManagerTest extends TestCase {
         Assert.assertEquals("[y4, y4.2]", cm.getListPetName("x4").toString());
     }
 
-    public void testChangeClientName() {
+    public void testChangeClientName() throws ClassNotFoundException {
         ClinicManager cm = new ClinicManager();
         cm.addClient("x1","y1", PetType.CAT);
         cm.addClient("x2","y2", PetType.DOG);
@@ -57,7 +57,7 @@ public class ClinicManagerTest extends TestCase {
         Assert.assertEquals("changed", cm.getNameClient("y3"));
     }
 
-    public void testChangePetName() {
+    public void testChangePetName() throws ClassNotFoundException {
         ClinicManager cm = new ClinicManager();
         cm.addClient("x1","y1", PetType.CAT);
         cm.addClient("x2","y2", PetType.DOG);
@@ -69,7 +69,7 @@ public class ClinicManagerTest extends TestCase {
         Assert.assertEquals("[changed, changed2]", cm.getListPetName("x4").toString());
     }
 
-    public void testDeleteClient() {
+    public void testDeleteClient() throws ClassNotFoundException {
         ClinicManager cm = new ClinicManager();
         cm.addClient("x1","y1", PetType.CAT);
         cm.addClient("x2","y2", PetType.DOG);
