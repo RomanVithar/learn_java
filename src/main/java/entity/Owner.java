@@ -7,10 +7,15 @@ import java.util.Objects;
 public class Owner {
     private String name;
     private List<Pet> pets;
-    private int id;
+    private Integer id;
 
     public Owner() {
         pets = new ArrayList<>();
+    }
+
+    public Owner(String name) {
+        this();
+        this.name = name;
     }
 
     public Owner(String name, Pet pet) {
@@ -18,6 +23,7 @@ public class Owner {
         this.name = name;
         pets.add(pet);
     }
+
     public void addPet(Pet pet) {
         pets.add(pet);
     }
@@ -34,17 +40,12 @@ public class Owner {
         this.name = name;
     }
 
-    public void generateId() {
-        id = hashCode();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Owner owner = (Owner) o;
-        return id == owner.id &&
-                Objects.equals(name, owner.name) &&
+        return Objects.equals(name, owner.name) &&
                 Objects.equals(pets, owner.pets);
     }
 
@@ -53,7 +54,24 @@ public class Owner {
         return Objects.hash(name, pets);
     }
 
-    public long getId() {
+    public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return "Owner{" +
+                "name='" + name + '\'' +
+                ", pets=" + pets +
+                ", id='" + id + '\'' +
+                '}';
+    }
+
+    public void setPets(List<Pet> pets) {
+        this.pets = pets;
     }
 }

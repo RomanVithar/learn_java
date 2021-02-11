@@ -10,12 +10,10 @@ import java.util.Objects;
 public class ClinicManager {
     private final ArrayList<Owner> owners;
     private final ArrayList<Pet> pets;
-    private JDBCConnector jdbcConnector;
 
-    public ClinicManager() throws ClassNotFoundException {
+    public ClinicManager(){
         owners = new ArrayList<>();
         pets = new ArrayList<>();
-        jdbcConnector = new JDBCConnector();
     }
 
     public void addClient(String name, String petName, PetType petType) {
