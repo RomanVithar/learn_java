@@ -9,6 +9,8 @@ import org.junit.Assert;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JDBCConnectorTest extends TestCase {
     private Owner owner1;
@@ -43,21 +45,33 @@ public class JDBCConnectorTest extends TestCase {
         base.writeOwner(owner2);
     }
 
+    public boolean equalsOwners(Owner o1, Owner o2) {
+        if (!o1.getName().equals(o2.getName())) {
+            return false;
+        }
+        return equalsListPets(o1.getPets(), o2.getPets());
+    }
+
+    public boolean equalsListPets(List<Pet> p1, List<Pet> p2) {
+        int count = 0;
+        for (Pet pet : p1) {
+            for (Pet petEquals : p2) {
+                if (pet.getName().equals(petEquals.getName())
+                        && pet.getType() == petEquals.
+                        getType()) {
+                    count++;
+                }
+            }
+        }
+        return p1.size() == count;
+    }
+
     public void testWriteOwner() throws SQLException, IOException, URISyntaxException {
         prepareToTest();
         Owner lOwner1 = base.readOwner(pet1x1);
-        Assert.assertEquals("owner1", lOwner1.getName());
         Owner lOwner2 = base.readOwner(pet2x2);
-        Assert.assertEquals("owner2", lOwner2.getName());
-        Assert.assertEquals("[Pet{name='pet1x2', type=DOG, id='2'}," +
-                        " Pet{name='pet1x3', type=CAT, id='3'}," +
-                        " Pet{name='pet1x1', type=CAT, id='1'}]",
-                lOwner1.getPets().toString());
-        Assert.assertEquals("[Pet{name='pet2x2'," +
-                        " type=DOG, id='5'}," +
-                        " Pet{name='pet2x1', " +
-                        "type=HAMSTER, id='4'}]",
-                lOwner2.getPets().toString());
+        Assert.assertTrue(equalsOwners(owner1, lOwner1));
+        Assert.assertTrue(equalsOwners(owner2, lOwner2));
     }
 
     public void testGetIdForClient() throws SQLException, IOException, URISyntaxException {
@@ -69,40 +83,32 @@ public class JDBCConnectorTest extends TestCase {
     public void testDeletePet() throws SQLException, IOException, URISyntaxException {
         prepareToTest();
         base.deletePet(pet1x3);
+        owner1.getPets().remove(pet1x3);
         Owner lOwner1 = base.readOwner(pet1x2);
-        Assert.assertEquals("[Pet{name='pet1x2', type=DOG, id='2'}," +
-                        " Pet{name='pet1x1', type=CAT, id='1'}]",
-                lOwner1.getPets().toString());
+        Assert.assertTrue(equalsOwners(owner1, lOwner1));
     }
 
 
     public void testWritePet() throws SQLException, IOException, URISyntaxException {
         prepareToTest();
-        Pet pet = new Pet("pet", PetType.DOG,owner2);
+        Pet pet = new Pet("pet", PetType.DOG, owner2);
         base.writePet(pet);
         Owner owner = base.readOwner(pet2x2);
-        Pet petTest = owner.getPets().stream().filter(e->e.getName().equals("pet")).findAny().orElse(null);
+        Pet petTest = owner.getPets().stream().filter(e -> e.getName().equals("pet")).findAny().orElse(null);
         assert petTest != null;
-        assertEquals("pet",petTest.getName());
+        assertEquals("pet", petTest.getName());
     }
 
     public void testReadOwner() throws SQLException, IOException, URISyntaxException {
         prepareToTest();
         Owner owner = base.readOwner(pet2x2);
-        Assert.assertEquals("[Pet{name='pet2x2'," +
-                " type=DOG, id='5'}," +
-                " Pet{name='pet2x1', " +
-                "type=HAMSTER, id='4'}]", owner.getPets().toString());
-        Assert.assertEquals("owner2",owner.getName());
+        Assert.assertTrue(equalsOwners(owner, owner2));
     }
 
     public void testReadPets() throws SQLException, IOException, URISyntaxException {
         prepareToTest();
-        Owner owner = base.readOwner(pet2x2);
-        Assert.assertEquals("[Pet{name='pet2x2'," +
-                " type=DOG, id='5'}," +
-                " Pet{name='pet2x1', " +
-                "type=HAMSTER, id='4'}]", owner.getPets().toString());
+        List<Pet> pets = new ArrayList<>(base.readPets(owner1));
+        Assert.assertTrue(equalsListPets(pets, owner1.getPets()));
     }
 
 
@@ -114,7 +120,7 @@ public class JDBCConnectorTest extends TestCase {
     public void testUpdatePetName() throws SQLException, IOException, URISyntaxException {
         prepareToTest();
         base.updatePetName(pet1x2, "updated");
-        Pet pet = base.readPets(owner1).stream().filter(e->e.getName().equals("updated")).findAny().orElse(null);
+        Pet pet = base.readPets(owner1).stream().filter(e -> e.getName().equals("updated")).findAny().orElse(null);
         assert pet != null;
         Assert.assertEquals("updated", pet.getName());
     }
@@ -123,6 +129,6 @@ public class JDBCConnectorTest extends TestCase {
         prepareToTest();
         base.updateOwnerName(owner1, "updated");
         Owner owner = base.readOwner(pet1x2);
-        Assert.assertEquals("updated",owner.getName());
+        Assert.assertEquals("updated", owner.getName());
     }
 }

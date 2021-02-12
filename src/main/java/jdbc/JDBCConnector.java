@@ -7,13 +7,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class JDBCConnector {
     private Connection connection;
@@ -36,50 +34,48 @@ public class JDBCConnector {
         String queryForClients = "insert into clients(name) values(?)";
         String queryForPets = "insert into pets(client_id, name, type) VALUES (?,?,?)";
         connection.setAutoCommit(false);
-        PreparedStatement statement = connection.prepareStatement(queryForClients,
-                new String[]{"client_id"});
-        statement.setString(1, owner.getName());
-        statement.execute();
-        ResultSet gk = statement.getGeneratedKeys();
         Integer clientId = null;
-        if (gk.next()) {
-            clientId = gk.getInt("client_id");
+        try (PreparedStatement statement = connection.prepareStatement(queryForClients,
+                new String[]{"client_id"})) {
+            statement.setString(1, owner.getName());
+            statement.execute();
+            ResultSet gk = statement.getGeneratedKeys();
+            if (gk.next()) {
+                clientId = gk.getInt("client_id");
+            }
         }
         if (clientId != null) {
-            statement = connection.prepareStatement(queryForPets);
-            for (Pet pet : owner.getPets()) {
-                statement.setInt(1, clientId);
-                statement.setString(2, pet.getName());
-                statement.setString(3, pet.getType().toString());
-                statement.execute();
+            try (PreparedStatement statement = connection.prepareStatement(queryForPets)) {
+                for (Pet pet : owner.getPets()) {
+                    statement.setInt(1, clientId);
+                    statement.setString(2, pet.getName());
+                    statement.setString(3, pet.getType().toString());
+                    statement.execute();
+                }
+                connection.commit();
+                connection.setAutoCommit(true);
             }
-            connection.commit();
-            connection.setAutoCommit(true);
         } else {
             System.out.println("Обработка ошибки нам не дали ключа!");
         }
-        statement.close();
     }
 
     public void writePet(Pet pet) throws SQLException {
-        if (pet == null) {
-            //TODO: ошибка
-            return;
-        }
+        assert pet != null;
         String query = "insert into pets(client_id, name, type) values(?, ?, ?)";
-        PreparedStatement statement = connection.prepareStatement(query);
-        Integer id = pet.getOwner().getId();
-        if (id == null) {
-            id = readIdForClient(pet.getOwner());
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            Integer id = pet.getOwner().getId();
+            if (id == null) {
+                id = readIdForClient(pet.getOwner());
+            }
+            statement.setInt(1, id);
+            statement.setString(2, pet.getName());
+            statement.setString(3, pet.getType().toString());
+            connection.setAutoCommit(false);
+            statement.execute();
+            connection.commit();
+            connection.setAutoCommit(true);
         }
-        statement.setInt(1, id);
-        statement.setString(2, pet.getName());
-        statement.setString(3, pet.getType().toString());
-        connection.setAutoCommit(false);
-        statement.execute();
-        connection.commit();
-        connection.setAutoCommit(true);
-        statement.close();
     }
 
     public Owner readOwner(Pet pet) throws SQLException {
@@ -97,21 +93,20 @@ public class JDBCConnector {
                 "          where pets.name = ? " +
                 "            and pets.type = ? " +
                 "      ) = client_id ";
-        PreparedStatement statement = connection.prepareStatement(getOwnerQuery);
-        statement.setString(1, pet.getName());
-        statement.setString(2, pet.getType().toString());
-        ResultSet res = statement.executeQuery();
-        if (res.next()) {
-            owner.setName(res.getString("name"));
-            owner.setId(res.getInt("client_id"));
+        try (PreparedStatement statement = connection.prepareStatement(getOwnerQuery)) {
+            statement.setString(1, pet.getName());
+            statement.setString(2, pet.getType().toString());
+            ResultSet res = statement.executeQuery();
+            if (res.next()) {
+                owner.setName(res.getString("name"));
+                owner.setId(res.getInt("client_id"));
+            }
+            owner.setPets(new ArrayList<>(readPets(owner)));
         }
-        owner.setPets(new ArrayList<>(readPets(owner)));
-        statement.close();
         return owner;
     }
 
     public Set<Pet> readPets(Owner owner) throws SQLException {
-        PreparedStatement statement;
         ResultSet res;
         Integer id = readIdForClient(owner);
         if (id == null) {
@@ -122,18 +117,18 @@ public class JDBCConnector {
         String getPetsQuery = "select * " +
                 "from pets " +
                 "where client_id = ?";
-        statement = connection.prepareStatement(getPetsQuery);
-        statement.setInt(1, id);
-        res = statement.executeQuery();
-        Pet tempPet;
-        while (res.next()) {
-            tempPet = new Pet(res.getInt("pet_id"),
-                    res.getString("name"),
-                    res.getString("type"),
-                    owner);
-            set.add(tempPet);
+        try (PreparedStatement statement = connection.prepareStatement(getPetsQuery)) {
+            statement.setInt(1, id);
+            res = statement.executeQuery();
+            Pet tempPet;
+            while (res.next()) {
+                tempPet = new Pet(res.getInt("pet_id"),
+                        res.getString("name"),
+                        res.getString("type"),
+                        owner);
+                set.add(tempPet);
+            }
         }
-        statement.close();
         return set;
     }
 
@@ -147,13 +142,13 @@ public class JDBCConnector {
         String getOwnerId = "select distinct client_id " +
                 "from clients " +
                 "where name = ?";
-        PreparedStatement statement = connection.prepareStatement(getOwnerId);
-        statement.setString(1, owner.getName());
-        ResultSet res = statement.executeQuery();
-        if (res.next()) {
-            id = res.getInt("client_id");
+        try (PreparedStatement statement = connection.prepareStatement(getOwnerId)) {
+            statement.setString(1, owner.getName());
+            ResultSet res = statement.executeQuery();
+            if (res.next()) {
+                id = res.getInt("client_id");
+            }
         }
-        statement.close();
         if (id == null) {
             //TODO: обработка ошибки
         }
@@ -169,11 +164,11 @@ public class JDBCConnector {
         String query = "delete  " +
                 "from pets " +
                 "where name = ? and type = ?";
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setString(1, pet.getName());
-        statement.setString(2, pet.getType().toString());
-        statement.execute();
-        statement.close();
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, pet.getName());
+            statement.setString(2, pet.getType().toString());
+            statement.execute();
+        }
     }
 
     public void deleteOwner(Owner owner) throws SQLException {
@@ -184,10 +179,10 @@ public class JDBCConnector {
         String query = "delete " +
                 "from clients " +
                 "where name = ?";
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setString(1, owner.getName());
-        statement.execute();
-        statement.close();
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, owner.getName());
+            statement.execute();
+        }
         connection.commit();
         connection.setAutoCommit(true);
     }
@@ -201,12 +196,12 @@ public class JDBCConnector {
         String query = "update pets " +
                 "set name = ? " +
                 "where name = ? and type = ?";
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setString(1, name);
-        statement.setString(2, pet.getName());
-        statement.setString(3, pet.getType().toString());
-        statement.execute();
-        statement.close();
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, name);
+            statement.setString(2, pet.getName());
+            statement.setString(3, pet.getType().toString());
+            statement.execute();
+        }
     }
 
     public void updateOwnerName(Owner owner, String name) throws SQLException {
@@ -218,14 +213,14 @@ public class JDBCConnector {
         String query = "update clients " +
                 "set name = ? " +
                 "where name = ?";
-        PreparedStatement statement = connection.prepareStatement(query);
-        statement.setString(1, name);
-        statement.setString(2, owner.getName());
-        statement.execute();
-        statement.close();
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, name);
+            statement.setString(2, owner.getName());
+            statement.execute();
+        }
     }
 
-    public void dropBase() throws SQLException, IOException, URISyntaxException {
+    public void dropBase() throws SQLException, IOException {
         StringBuilder query = new StringBuilder();
         File file = new File(Objects.requireNonNull(getClass()
                 .getClassLoader()
@@ -237,8 +232,8 @@ public class JDBCConnector {
         while ((line = br.readLine()) != null) {
             query.append(line);
         }
-        Statement statement = connection.createStatement();
-        statement.execute(query.toString());
-        statement.close();
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(query.toString());
+        }
     }
 }
