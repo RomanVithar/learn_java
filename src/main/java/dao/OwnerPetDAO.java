@@ -1,31 +1,36 @@
-package jdbc;
+package dao;
 
 import entity.Owner;
 import entity.Pet;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-public class JDBCConnector {
-    private Connection connection;
-    //TODO: переделать с паттерном фабрика для записи значений для базы из .properties
-    private final String url = "jdbc:postgresql://localhost:5432/learn_base";
-    private final String username = "postgres";
-    private final String password = "4852123";
+public class OwnerPetDAO {
+    private static Connection connection;
 
-    public JDBCConnector() throws ClassNotFoundException {
-        Class.forName("org.postgresql.Driver");
-        connection = null;
+    static {
+        String url = null;
+        String username = null;
+        String password = null;
+
+        try (InputStream in = OwnerPetDAO.class
+                .getClassLoader().getResourceAsStream("persistence.properties")) {
+            Properties properties = new Properties();
+            properties.load(in);
+            url = properties.getProperty("url");
+            username = properties.getProperty("username");
+            password = properties.getProperty("password");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try {
+            Class.forName("org.postgresql.Driver");
+            assert url != null;
             connection = DriverManager.getConnection(url, username, password);
-        } catch (SQLException throwables) {
+        } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
     }
@@ -149,9 +154,7 @@ public class JDBCConnector {
                 id = res.getInt("client_id");
             }
         }
-        if (id == null) {
-            //TODO: обработка ошибки
-        }
+        assert id != null;
         return id;
     }
 

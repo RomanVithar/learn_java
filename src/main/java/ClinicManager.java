@@ -1,7 +1,6 @@
 import entity.Owner;
 import entity.Pet;
 import entity.PetType;
-import jdbc.JDBCConnector;
 
 import java.util.ArrayList;
 import java.util.List;

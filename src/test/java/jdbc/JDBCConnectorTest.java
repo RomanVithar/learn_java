@@ -1,5 +1,6 @@
 package jdbc;
 
+import dao.OwnerPetDAO;
 import entity.Owner;
 import entity.Pet;
 import entity.PetType;
@@ -20,11 +21,11 @@ public class JDBCConnectorTest extends TestCase {
     private Pet pet1x3;
     private Pet pet2x1;
     private Pet pet2x2;
-    private JDBCConnector base;
+    private OwnerPetDAO base;
 
 
     public JDBCConnectorTest() throws ClassNotFoundException, SQLException, IOException, URISyntaxException {
-        base = new JDBCConnector();
+        base = new OwnerPetDAO();
     }
 
     private void prepareToTest() throws SQLException, IOException, URISyntaxException {
