@@ -77,8 +77,8 @@ public class JDBCConnectorTest extends TestCase {
 
     public void testGetIdForClient() throws SQLException, IOException, URISyntaxException {
         prepareToTest();
-        Assert.assertEquals(new Integer(1), base.readIdForClient(owner1));
-        Assert.assertEquals(new Integer(2), base.readIdForClient(owner2));
+        Assert.assertEquals(Integer.valueOf(1), base.readIdForClient(owner1));
+        Assert.assertEquals(Integer.valueOf(2), base.readIdForClient(owner2));
     }
 
     public void testDeletePet() throws SQLException, IOException, URISyntaxException {
