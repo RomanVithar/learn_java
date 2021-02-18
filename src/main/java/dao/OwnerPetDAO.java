@@ -6,15 +6,27 @@ import entity.Pet;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class OwnerPetDAO {
     private static Connection connection;
+    private static Logger LOGGER;
 
     static {
+        try (FileInputStream ins = new FileInputStream("log.config")) {
+            LogManager.getLogManager().readConfiguration(ins);
+            LOGGER = Logger.getLogger(OwnerPetDAO.class.getName());
+        } catch (Exception ignore) {
+            ignore.printStackTrace();
+        }
+
         String url = null;
         String username = null;
         String password = null;
 
+        LOGGER.log(Level.INFO, "чтение properties для бд");
         try (InputStream in = OwnerPetDAO.class
                 .getClassLoader().getResourceAsStream("persistence.properties")) {
             Properties properties = new Properties();
@@ -23,46 +35,54 @@ public class OwnerPetDAO {
             username = properties.getProperty("username");
             password = properties.getProperty("password");
         } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "ошибка в чтение properties", e);
             e.printStackTrace();
         }
 
+        LOGGER.log(Level.INFO, "подключение к бд создание connection");
         try {
             Class.forName("org.postgresql.Driver");
             assert url != null;
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException | ClassNotFoundException throwables) {
+            LOGGER.log(Level.WARNING, "ошибка в получении connection", throwables);
             throwables.printStackTrace();
         }
+        LOGGER.log(Level.INFO, "static выполнен успешно. connection получен");
     }
 
     public void writeOwner(Owner owner) throws SQLException {
+        LOGGER.log(Level.INFO, "Вызов метода writeOwner");
         String queryForClients = "insert into clients(name) values(?)";
         String queryForPets = "insert into pets(client_id, name, type) VALUES (?,?,?)";
         connection.setAutoCommit(false);
         Integer clientId = null;
+        LOGGER.log(Level.INFO, "получение PreparedStatement");
         try (PreparedStatement statement = connection.prepareStatement(queryForClients,
                 new String[]{"client_id"})) {
+            LOGGER.log(Level.INFO, "PreparedStatement получен");
             statement.setString(1, owner.getName());
+            LOGGER.log(Level.INFO, "Выполнение запроса на внесение записей в бд");
             statement.execute();
             ResultSet gk = statement.getGeneratedKeys();
             if (gk.next()) {
                 clientId = gk.getInt("client_id");
             }
         }
-        if (clientId != null) {
-            try (PreparedStatement statement = connection.prepareStatement(queryForPets)) {
-                for (Pet pet : owner.getPets()) {
-                    statement.setInt(1, clientId);
-                    statement.setString(2, pet.getName());
-                    statement.setString(3, pet.getType().toString());
-                    statement.execute();
-                }
-                connection.commit();
-                connection.setAutoCommit(true);
+        assert clientId != null;
+        LOGGER.log(Level.INFO, "Начало записи питомцев клиента");
+        try (PreparedStatement statement = connection.prepareStatement(queryForPets)) {
+            for (Pet pet : owner.getPets()) {
+                statement.setInt(1, clientId);
+                statement.setString(2, pet.getName());
+                statement.setString(3, pet.getType().toString());
+                statement.execute();
             }
-        } else {
-            System.out.println("Обработка ошибки нам не дали ключа!");
+            connection.commit();
+            connection.setAutoCommit(true);
         }
+
+        LOGGER.log(Level.INFO, "writeOwner завершён успешно");
     }
 
     public void writePet(Pet pet) throws SQLException {
