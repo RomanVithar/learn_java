@@ -1,6 +1,7 @@
-import entity.Owner;
-import entity.Pet;
-import entity.PetType;
+import com.learning.ClinicManager;
+import com.learning.entity.Owner;
+import com.learning.entity.Pet;
+import com.learning.entity.PetType;
 import junit.framework.TestCase;
 import org.junit.Assert;
 

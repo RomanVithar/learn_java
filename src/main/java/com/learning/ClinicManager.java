@@ -1,6 +1,8 @@
-import entity.Owner;
-import entity.Pet;
-import entity.PetType;
+package com.learning;
+
+import com.learning.entity.Owner;
+import com.learning.entity.Pet;
+import com.learning.entity.PetType;
 
 import java.util.ArrayList;
 import java.util.List;

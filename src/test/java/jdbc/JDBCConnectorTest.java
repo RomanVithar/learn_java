@@ -1,9 +1,9 @@
 package jdbc;
 
-import dao.OwnerPetDAO;
-import entity.Owner;
-import entity.Pet;
-import entity.PetType;
+import com.learning.dao.OwnerPetDAO;
+import com.learning.entity.Owner;
+import com.learning.entity.Pet;
+import com.learning.entity.PetType;
 import junit.framework.TestCase;
 import org.junit.Assert;
 
@@ -29,7 +29,7 @@ public class JDBCConnectorTest extends TestCase {
     }
 
     private void prepareToTest() throws SQLException, IOException, URISyntaxException {
-        base.dropBase();
+        base.drop();
         owner1 = new Owner("owner1");
         owner2 = new Owner("owner2");
         pet1x1 = new Pet("pet1x1", PetType.CAT, owner1);
@@ -131,5 +131,6 @@ public class JDBCConnectorTest extends TestCase {
         base.updateOwnerName(owner1, "updated");
         Owner owner = base.readOwner(pet1x2);
         Assert.assertEquals("updated", owner.getName());
+        base.drop();
     }
 }

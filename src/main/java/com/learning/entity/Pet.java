@@ -1,5 +1,6 @@
-package entity;
+package com.learning.entity;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class Pet {
@@ -20,23 +21,8 @@ public class Pet {
 
     public Pet(Integer id, String name, String type, Owner owner) {
         this();
-        PetType t = null;
-        switch (type) {
-            case "DOG":
-                t = PetType.DOG;
-                break;
-            case "CAT":
-                t = PetType.CAT;
-                break;
-            case "RAT":
-                t = PetType.RAT;
-                break;
-            case "HAMSTER":
-                t = PetType.HAMSTER;
-                break;
-        }
+        setType(type);
         this.name = name;
-        this.type = t;
         this.owner = owner;
         this.id = id;
     }
@@ -64,6 +50,25 @@ public class Pet {
 
     public void setType(PetType type) {
         this.type = type;
+    }
+
+    public void setType(String type) {
+        PetType t = null;
+        switch (type.toUpperCase(Locale.ROOT)) {
+            case "DOG":
+                t = PetType.DOG;
+                break;
+            case "CAT":
+                t = PetType.CAT;
+                break;
+            case "RAT":
+                t = PetType.RAT;
+                break;
+            case "HAMSTER":
+                t = PetType.HAMSTER;
+                break;
+        }
+        this.type = t;
     }
 
     public PetType getType() {

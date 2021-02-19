@@ -31,22 +31,22 @@
                 <form method="post" id="ajax_form" action="">
                     <div class="form-group">
                         <label for="exampleFormControlInput1">Your name</label>
-                        <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Client name">
+                        <input type="text" name="clientName" class="form-control" id="exampleFormControlInput1" placeholder="Client name">
                     </div>
                     <div class="form-group">
                         <label for="exampleFormControlInput1">Pet name</label>
-                        <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Pet name">
+                        <input type="text" name="petName" class="form-control" id="exampleFormControlInput2" placeholder="Pet name">
                     </div>
                     <div class="form-group">
                         <label for="exampleFormControlSelect1">Example type pet</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
+                        <select name="type" class="form-control" id="exampleFormControlSelect1">
                           <option>Dog</option>
                           <option>Cat</option>
                           <option>Rat</option>
                           <option>Hamster</option>
                         </select>
                       </div>
-                    <input type="button" id="btn" value="Отправить" class="btn btn-dark" />
+                    <input type="submit" id="btn" value="Отправить" class="btn btn-dark" />
                 </form>
             </div>
         </div>

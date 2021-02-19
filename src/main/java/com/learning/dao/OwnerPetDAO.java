@@ -1,7 +1,7 @@
-package dao;
+package com.learning.dao;
 
-import entity.Owner;
-import entity.Pet;
+import com.learning.entity.Owner;
+import com.learning.entity.Pet;
 
 import java.io.*;
 import java.sql.*;
@@ -12,21 +12,20 @@ import java.util.logging.Logger;
 
 public class OwnerPetDAO {
     private static Connection connection;
-    private static Logger LOGGER;
+    //private static Logger LOGGER;
 
     static {
-        try (FileInputStream ins = new FileInputStream("log.config")) {
-            LogManager.getLogManager().readConfiguration(ins);
-            LOGGER = Logger.getLogger(OwnerPetDAO.class.getName());
-        } catch (Exception ignore) {
-            ignore.printStackTrace();
-        }
+//        try (FileInputStream ins = new FileInputStream("log.config")) {
+//            LogManager.getLogManager().readConfiguration(ins);
+//            LOGGER = Logger.getLogger(OwnerPetDAO.class.getName());
+//        } catch (Exception ignore) {
+//        }
 
         String url = null;
         String username = null;
         String password = null;
 
-        LOGGER.log(Level.INFO, "чтение properties для бд");
+        //LOGGER.log(Level.INFO, "чтение properties для бд");
         try (InputStream in = OwnerPetDAO.class
                 .getClassLoader().getResourceAsStream("persistence.properties")) {
             Properties properties = new Properties();
@@ -35,34 +34,34 @@ public class OwnerPetDAO {
             username = properties.getProperty("username");
             password = properties.getProperty("password");
         } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "ошибка в чтение properties", e);
+            //LOGGER.log(Level.WARNING, "ошибка в чтение properties", e);
             e.printStackTrace();
         }
 
-        LOGGER.log(Level.INFO, "подключение к бд создание connection");
+        //LOGGER.log(Level.INFO, "подключение к бд создание connection");
         try {
             Class.forName("org.postgresql.Driver");
             assert url != null;
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException | ClassNotFoundException throwables) {
-            LOGGER.log(Level.WARNING, "ошибка в получении connection", throwables);
+            //LOGGER.log(Level.WARNING, "ошибка в получении connection", throwables);
             throwables.printStackTrace();
         }
-        LOGGER.log(Level.INFO, "static выполнен успешно. connection получен");
+        //LOGGER.log(Level.INFO, "static выполнен успешно. connection получен");
     }
 
     public void writeOwner(Owner owner) throws SQLException {
-        LOGGER.log(Level.INFO, "Вызов метода writeOwner");
+        //LOGGER.log(Level.INFO, "Вызов метода writeOwner");
         String queryForClients = "insert into clients(name) values(?)";
         String queryForPets = "insert into pets(client_id, name, type) VALUES (?,?,?)";
         connection.setAutoCommit(false);
         Integer clientId = null;
-        LOGGER.log(Level.INFO, "получение PreparedStatement");
+        //LOGGER.log(Level.INFO, "получение PreparedStatement");
         try (PreparedStatement statement = connection.prepareStatement(queryForClients,
                 new String[]{"client_id"})) {
-            LOGGER.log(Level.INFO, "PreparedStatement получен");
+            //LOGGER.log(Level.INFO, "PreparedStatement получен");
             statement.setString(1, owner.getName());
-            LOGGER.log(Level.INFO, "Выполнение запроса на внесение записей в бд");
+            //LOGGER.log(Level.INFO, "Выполнение запроса на внесение записей в бд");
             statement.execute();
             ResultSet gk = statement.getGeneratedKeys();
             if (gk.next()) {
@@ -70,7 +69,7 @@ public class OwnerPetDAO {
             }
         }
         assert clientId != null;
-        LOGGER.log(Level.INFO, "Начало записи питомцев клиента");
+        //LOGGER.log(Level.INFO, "Начало записи питомцев клиента");
         try (PreparedStatement statement = connection.prepareStatement(queryForPets)) {
             for (Pet pet : owner.getPets()) {
                 statement.setInt(1, clientId);
@@ -82,7 +81,7 @@ public class OwnerPetDAO {
             connection.setAutoCommit(true);
         }
 
-        LOGGER.log(Level.INFO, "writeOwner завершён успешно");
+        //LOGGER.log(Level.INFO, "writeOwner завершён успешно");
     }
 
     public void writePet(Pet pet) throws SQLException {
@@ -243,7 +242,7 @@ public class OwnerPetDAO {
         }
     }
 
-    public void dropBase() throws SQLException, IOException {
+    public void drop() throws SQLException, IOException {
         StringBuilder query = new StringBuilder();
         File file = new File(Objects.requireNonNull(getClass()
                 .getClassLoader()

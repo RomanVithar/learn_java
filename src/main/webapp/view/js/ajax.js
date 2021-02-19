@@ -2,7 +2,7 @@
 $(document).ready(function () {
 	$("#btn").click(
 		function () {
-			sendAjaxForm('ajax_form', 'http://');
+			sendAjaxForm('ajax_form', 'http://localhost:8081/sendData');
 			return false;
 		}
 	);
@@ -13,6 +13,7 @@ function sendAjaxForm(ajax_form, url) {
 		url: url, //url страницы
 		type: "POST", //метод отправки
 		dataType: "html", //формат данных
+		//data: { field1: "hello", field2 : "hello2"},
 		data: $("#" + ajax_form).serialize(), // Сеарилизуем объект
 		error: function (response) { // Данные не отправлены
 			$('#result_form').html('Ошибка. Данные не отправлены.');
