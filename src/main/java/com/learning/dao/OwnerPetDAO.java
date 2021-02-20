@@ -258,4 +258,19 @@ public class OwnerPetDAO {
             statement.execute(query.toString());
         }
     }
+
+    public Set<Owner> readOwners() {
+        String query = "select * from clients";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            ResultSet res = statement.executeQuery();
+            Set<Owner> set = new HashSet<>();
+            while (res.next()){
+                set.add(new Owner(res.getInt("client_id"), res.getString("name")));
+            }
+            return set;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
+    }
 }

@@ -24,6 +24,11 @@ public class Owner {
         pets.add(pet);
     }
 
+    public Owner(Integer id, String name) {
+        this.name = name;
+        this.id = id;
+    }
+
     public void addPet(Pet pet) {
         pets.add(pet);
     }

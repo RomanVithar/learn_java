@@ -14,11 +14,17 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 @WebServlet("/sendData")
-public class MainServlet extends HttpServlet {
+public class ServletAddOwner extends HttpServlet {
+    private OwnerPetDAO ownerPetDAO;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        ownerPetDAO = new OwnerPetDAO();
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        OwnerPetDAO ownerPetDAO = new OwnerPetDAO();
         Owner owner = new Owner();
         owner.setName(req.getParameter("clientName"));
         Pet pet = new Pet();
