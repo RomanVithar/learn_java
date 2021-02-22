@@ -24,9 +24,14 @@ function sendAjaxForm(ajax_form, url) {
 var btnResponse = document.getElementById("btnResponse");
 btnResponse.addEventListener("click", function () {
 	$.ajax({
-		url: "http://localhost:8081/getOwners", // url сервера
+		url: 'http://localhost:8081/getOwners', // url сервера
 	}).then(function (result) {
-		console.log('result', result)
+		let list = JSON.parse(result);
+		$elem = document.querySelector('#container');
+		for (let i;i<list.length;i++){
+			$elem.appendChild(list[i])
+		}
+
 	}).catch(function (err) {
 		console.log('err', err)
 	})
